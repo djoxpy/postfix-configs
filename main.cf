@@ -334,7 +334,7 @@ insiders_only = check_sender_access hash:/etc/postfix/insiders, reject
 # permit_mx_backup restriction description in postconf(5).
 #
 relay_domains = $mydestination
-relayhost = superdeal-backup1.shalb.com
+#relayhost = superdeal-backup1.shalb.com
 
 # INTERNET OR INTRANET
 
