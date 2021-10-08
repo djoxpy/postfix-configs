@@ -1,0 +1,8 @@
+1. cd /etc/postfix/lists && postmap white_client_ip black_client_ip white_client black_client 
+white_helo block_dsl mx_access
+
+2. postmap /etc/postfix/sender_access
+
+3. postfix reload
+
+Админка Postfix -  /var/www/mail.superdeal.com.ua
