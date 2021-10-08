@@ -5,4 +5,19 @@ white_helo block_dsl mx_access
 
 3. postfix reload
 
+4.install postgrey
+
+5. check_policy_service inet:localhost:10023
+
+6. В настройках Постфикс
+  smtpd_recipient_restrictions =
+  ...
+  # Greylisting с помощью postgrey
+  check_policy_service inet:localhost:10023
+  ...
+
+7. sudo /etc/init.d/postgrey reload
+
 Админка Postfix -  /var/www/mail.superdeal.com.ua
+
+
