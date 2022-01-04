@@ -20,4 +20,4 @@ white_helo block_dsl mx_access
 
 Админка Postfix -  /var/www/mail.superdeal.com.ua
 
-
+Папка почтовых ящиков - /data/mail/vmail

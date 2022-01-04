@@ -15,7 +15,7 @@
 #   Save spam messages as a message/rfc822 MIME attachment instead of
 #   modifying the original message (0: off, 2: use text/plain instead)
 #
-# report_safe 1
+report_safe 0
 
 
 #   Set which networks or hosts are considered 'trusted' by your mail
@@ -31,17 +31,18 @@
 
 #   Set the threshold at which a message is considered spam (default: 5.0)
 #
-# required_score 5.0
+required_score 2.0
 
 
 #   Use Bayesian classifier (default: 1)
 #
-# use_bayes 1
+use_bayes 1
+use_bayes_rules 1
 
 
 #   Bayesian classifier auto-learning (default: 1)
 #
-# bayes_auto_learn 1
+bayes_auto_learn 1
 
 
 #   Set headers which may provide inappropriate cues to the Bayesian
@@ -85,5 +86,11 @@ ifplugin Mail::SpamAssassin::Plugin::Shortcircuit
 #
 # shortcircuit BAYES_99                spam
 # shortcircuit BAYES_00                ham
+
+# Включить или выключить проверки сети
+skip_rbl_checks 0
+use_razor2 0
+use_dcc 0
+use_pyzor 0
 
 endif # Mail::SpamAssassin::Plugin::Shortcircuit
