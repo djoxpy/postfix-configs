@@ -1,0 +1,9 @@
+user = postfix
+password = Domino3maiL
+hosts = localhost
+dbname = postfix_mail
+table = domain
+select_field = active
+where_field = domain
+additional_conditions = and backupmx = '0' and active = '1'
+

@@ -1,0 +1,7 @@
+user = postfix
+password = Domino3maiL
+hosts = localhost
+dbname = postfix_mail
+table = alias
+select_field = goto
+where_field = address

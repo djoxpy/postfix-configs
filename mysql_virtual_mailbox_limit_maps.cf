@@ -1,0 +1,9 @@
+user = postfix
+password = Domino3maiL
+hosts = localhost
+dbname = postfix_mail
+table = mailbox
+select_field = quota
+where_field = username
+additional_conditions = and active = '1'
+

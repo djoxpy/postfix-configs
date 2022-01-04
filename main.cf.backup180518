@@ -284,6 +284,27 @@ mynetworks = 192.168.254.0/28, 192.168.42.0/28, 127.0.0.0/8
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_security_options = noanonymous
 
+smtpd_sender_restrictions = check_sender_access regexp:/etc/postfix/senders_blacklist
+
+smtpd_recipient_restrictions =
+    permit_sasl_authenticated,
+    permit_mynetworks,
+    reject_non_fqdn_hostname
+    reject_non_fqdn_sender,
+    reject_non_fqdn_recipient,
+    reject_unknown_sender_domain,
+    reject_unknown_recipient_domain,
+    reject_unauth_destination,
+    reject_unauth_pipelining,
+    reject_invalid_hostname,
+    reject_rbl_client list.dsbl.org,
+    reject_rbl_client sbl.spamhaus.org,
+    reject_rbl_client bl.spamcop.net,
+    permit
+
+smtpd_restriction_classes = insiders_only
+insiders_only = check_sender_access hash:/etc/postfix/insiders, reject
+
 # The relay_domains parameter restricts what destinations this system will
 # relay mail to.  See the smtpd_recipient_restrictions description in
 # postconf(5) for detailed information.
@@ -312,6 +333,8 @@ smtpd_sasl_security_options = noanonymous
 # list this system as their primary or backup MX host. See the
 # permit_mx_backup restriction description in postconf(5).
 #
+relay_domains = $mydestination
+relayhost = superdeal-backup1.shalb.com
 
 # INTERNET OR INTRANET
 
@@ -701,62 +724,50 @@ smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
 
-#
-# Disable SSLv2, SSLv3
-#
-smtpd_tls_protocols = !SSLv2 !SSLv3
-smtpd_tls_mandatory_protocols = !SSLv2 !SSLv3
-smtp_tls_protocols = !SSLv2 !SSLv3
-smtp_tls_mandatory_protocols = !SSLv2 !SSLv3
-lmtp_tls_protocols = !SSLv2 !SSLv3
-lmtp_tls_mandatory_protocols = !SSLv2 !SSLv3
-
-### SSL and TLS###
-### SMTP ###
+# fix red padlockicon in Gmail
 smtp_use_tls = yes
 smtp_tls_security_level = may
 smtp_tls_loglevel = 1
-smtp_tls_CAfile = $smtpd_tls_CAfile
-smtp_tls_note_starttls_offer = yes
-#smtp_tls_CAfile = /root/.acme.sh/superdeal.com.ua/ca.cer
-smtp_tls_mandatory_ciphers = high
-#smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 #smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-#smtp_tls_cert_file = /root/.acme.sh/superdeal.com.ua/fullchain.cer
-#smtp_tls_key_file = /root/.acme.sh/superdeal.com.ua/superdeal.com.ua.key
+smtp_tls_cert_file = /root/.acme.sh/superdeal.com.ua/fullchain.cer
+smtp_tls_key_file = /root/.acme.sh/superdeal.com.ua/superdeal.com.ua.key
 
 
-### SMTPD ###
-smtpd_use_tls = yes
+# tls config
 smtpd_tls_security_level = may
-smtpd_tls_loglevel = 1
 #smtpd_tls_received_header = yes #17.05.18 
 #smtpd_tls_auth_only = yes #17.05.18
 #smtpd_use_tls = yes #17.05.18
 #smtp_tls_note_starttls_offer = yes 
 #smtpd_tls_key_file = /etc/ssl/postfix/smtp.superdeal.com.ua.key
 #smtpd_tls_cert_file = /etc/ssl/postfix/smtp.superdeal.com.ua.cert
-smtpd_tls_cert_file = /etc/letsencrypt/live/mail.superdeal.com.ua/fullchain.pem
-smtpd_tls_key_file = /etc/letsencrypt/live/mail.superdeal.com.ua/privkey.pem
-#smtpd_tls_cert_file = /root/.acme.sh/superdeal.com.ua/fullchain.cer
-#smtpd_tls_key_file = /root/.acme.sh/superdeal.com.ua/superdeal.com.ua.key
-#smtpd_tls_CAfile = /root/.acme.sh/superdeal.com.ua/ca.cer
+
+smtpd_use_tls = yes
+###########
+#smtpd_tls_cert_file = /etc/letsencrypt/live/mail.superdeal.com.ua/fullchain.pem
+#smtpd_tls_key_file = /etc/letsencrypt/live/mail.superdeal.com.ua/privkey.pem
+smtpd_tls_cert_file = /root/.acme.sh/superdeal.com.ua/fullchain.cer
+smtpd_tls_key_file = /root/.acme.sh/superdeal.com.ua/superdeal.com.ua.key
 #smtpd_tls_cert_file = /etc/nginx/ssl/superdeal.com.ua.cer
 #smtpd_tls_key_file = /etc/nginx/ssl/superdeal.com.ua.key
 ##########
 
-smtpd_tls_dh1024_param_file = ${config_directory}/dh2048.pem
-smtpd_tls_dh512_param_file = ${config_directory}/dh512.pem
-smtpd_tls_exclude_ciphers = aNULL, eNULL, EXPORT, DES, RC4, MD5, PSK, aECDH, EDH-DSS-DES-CBC3-SHA, EDH-RSA-DES-CDC3-SHA, KRB5-DE5, CBC3-SHA
+smtp_tls_mandatory_ciphers = high
+smtp_tls_mandatory_protocols=!SSLv2,!SSLv3
+
 tls_high_cipherlist = EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH:ECDHE-RSA-AES128-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA128:DHE-RSA-AES128-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES128-GCM-SHA128:ECDHE-RSA-AES128-SHA384:ECDHE-RSA-AES128-SHA128:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES128-SHA128:DHE-RSA-AES128-SHA128:DHE-RSA-AES128-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA384:AES128-GCM-SHA128:AES128-SHA128:AES128-SHA128:AES128-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
 #tls_high_cipherlist = ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK
 
+smtpd_tls_mandatory_ciphers = high
+smtpd_tls_mandatory_protocols=!SSLv2,!SSLv3
+
 #smtpd_tls_CAfile = /etc/postfix/ssl/newcert.pem
+smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_session_cache_database = btree:/var/spool/postfix/smtpd_tls_cache
 #smtpd_tls_received_header = yes
 tls_random_source = dev:/dev/urandom
-#smtpd_tls_auth_only = no
+smtpd_tls_auth_only = no
 
 # SHALB Virtual configuration
 virtual_mailbox_base = /var/vmail
@@ -767,11 +778,11 @@ virtual_gid_maps = static:12
 virtual_mailbox_domains = mysql:/etc/postfix/mysql_virtual_domains_maps.cf
 virtual_mailbox_maps = mysql:/etc/postfix/mysql_virtual_mailbox_maps.cf
 
+smtpd_helo_required = yes
 
-
-# SPAM filtering voa 21.05.2012							
-
-smtpd_recipient_limit = 100
+# SPAM filtering voa 21.05.2012
+smtpd_helo_required = yes
+smtpd_recipient_limit = 20
 disable_vrfy_command = yes
 address_verify_negative_expire_time = 3d
 address_verify_negative_refresh_time = 3h
@@ -785,134 +796,9 @@ show_user_unknown_table_name = no
 max_idle = 30s
 strict_rfc821_envelopes = yes
 
-#content_filter=amavisfeed:[127.0.0.1]:10024
+content_filter=amavisfeed:[127.0.0.1]:10024
 
 transport_maps = hash:/etc/postfix/transport
                
 message_size_limit = 51200000
 
-# OpenDKIM mail verification
-#milter_default_action = accept
-#milter_protocol = 6
-smtpd_milters = unix:/var/run/opendkim/opendkim.sock
-non_smtpd_milters = unix:/var/run/opendkim/opendkim.sock
-#smtpd_milters = inet:localhost:8891
-#non_smtpd_milters = inet:localhost:8891
-#local_recipient_maps =
-#luser_relay = unknown
-
-
-##################  SPAM FILTER  ###########################
-###Changed and added 07.10.2021 
-smtpd_restriction_classes = white_client_ip,
-                            black_client_ip,
-                            block_dsl,
-                            white_client,
-                            white_helo,
-                            black_client,
-                            mx_access
-
-# IP адреса, которые нужно пропускать всегда
-white_client_ip	= check_client_access hash:/etc/postfix/lists/white_client_ip
-
-# IP адреса, которые нужно блокировать всегда
-black_client_ip	= check_client_access hash:/etc/postfix/lists/black_client_ip
-
-# E-mail, которые нужно пропускать всегда
-white_client = check_sender_access hash:/etc/postfix/lists/white_client
-
-# E-mail, которые нужно блокировать всегда
-black_client = check_sender_access hash:/etc/postfix/lists/black_client
-
-# Неправильные значения HELO, которые мы тем не менее принимаем
-white_helo = check_sender_access hash:/etc/postfix/lists/white_helo
-
-# Правила для блокировки различных динамических ip.
-block_dsl = check_client_access regexp:/etc/postfix/lists/block_dsl
-
-# Список приватных сетей, которые не могут быть использованы в качестве IP для MX записей
-mx_access		= check_sender_mx_access cidr:/etc/postfix/lists/mx_access
-
-smtpd_etrn_restrictions = reject
-disable_vrfy_command = yes
-
-# Проверки на основе данных, переданных в HELO/EHLO hostname
-smtpd_helo_required = yes
-smtpd_helo_restrictions = 
-		permit_mynetworks,
-		permit_sasl_authenticated,
-		white_client_ip,
-        white_helo,
-		black_client_ip,
-		block_dsl,
-		# Отказываем серверам, у которых в HELO несуществующий или не FQDN адрес
-		reject_invalid_helo_hostname,
-		reject_non_fqdn_helo_hostname,
-		# Запрещаем приём писем от серверов, представляющихся адресом, для которого не существует 
-		# A или MX записи.
-		reject_unknown_helo_hostname
-
-# Проверки клиентского компьютера или другого почтового сервера, который соединяется с 
-# сервером postfix для отправки письма
-smtpd_client_restrictions =	
-		permit_mynetworks,
-		white_client_ip,
-		permit_sasl_authenticated,
-		# Отвергает запрос, когда клиент отправляет команды SMTP раньше времени, еще не зная, 
-		# поддерживает ли Postfix конвейерную обработку команд ESMTP
-		reject_unauth_pipelining,
-		# Блокируем клиентов с адресами from, домены которых не имеют A/MX записей
-		reject_unknown_address,
-		reject_unknown_client_hostname
-
-# Проверки исходящей или пересылаемой через нас почты на основе данных MAIL FROM
-smtpd_sender_restrictions = 
-		permit_mynetworks,
-		white_client_ip,
-		permit_sasl_authenticated,
-		white_client,
-		black_client,
-		#Запрет отправки писем, когда адрес MAIL FROM не совпадает с логином пользователя
-		reject_authenticated_sender_login_mismatch,
-		# Отклоняем письма от несуществующих доменов
-		reject_unknown_sender_domain,
-		# Отклоняем письма от доменов в не FQDN формате
-		reject_non_fqdn_sender,
-		# Отклонение писем с несуществующим адресом отправителя
-		reject_unlisted_sender,
-		reject_unauth_destination,
-		sleep 15, reject_unknown_reverse_client_hostname,
-		sleep 15, reject_unknown_client_hostname,
-		mx_access,
-		# Запретить отправку писем с левых почтовых серверов, которые ставят в поле From наш домен
-		check_sender_access hash:/etc/postfix/sender_access
-		
-# Правила приема почты нашим сервером на основе данных RCPT TO		
-smtpd_recipient_restrictions =
-		permit_mynetworks,
-		white_client_ip,
-	    permit_sasl_authenticated,
-		# Отклоняет всю почту, что адресована не для наших доменов
-		reject_unauth_destination,
-		# Отклонение писем с несуществующим адресом получателя
-		reject_unlisted_recipient,
-		# Отклоняет сообщения на несуществующие домены
-		reject_unknown_recipient_domain,
-		# Отклоняет сообщения если получатель не в формате FQDN
-		reject_non_fqdn_recipient,
-		# Отклоняем прием от отправителя с пустым адресом письма, предназначенным нескольким 
-		# получателям.
-		reject_multi_recipient_bounce,
-		# GREYLISTING
-		check_policy_service inet:127.0.0.1:10030,
-		# DNS Blacklist UCEPROTECTL1
-		reject_rbl_client dnsbl-1.uceprotect.net,
-		#reject_rbl_client dbl.spamhaus.org,
-		#reject_rbl_client b.barracudacentral.org,
-		#reject_rbl_client bl.spamcop.net,
-
-### Если нужно переключиться на 212.26.136.118 (сервер входящей почты в Украине), то комментируем 
-### строку RELAYHOST - Германия (144.76.153.245)
-relay_domains = $mydestination
-relayhost = superdeal-backup1.shalb.com
-maximal_backoff_time = 7200s
